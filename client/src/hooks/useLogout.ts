@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 
 interface apiResponse {
   message: string
@@ -14,7 +15,7 @@ const logoutRequest = async (): Promise<apiResponse> => {
 
   if (!response.ok) {
     const err = await response.json()
-    throw new Error(err.message || "Login failed")
+    throw new Error(err.message || "Logout failed")
   }
 
   return response.json()
@@ -22,11 +23,13 @@ const logoutRequest = async (): Promise<apiResponse> => {
 
 export const useLogout = () => {
   const queryClient = useQueryClient()
+  const router = useRouter()
+
   return useMutation<apiResponse, Error>({
-    // custom response and data type set
     mutationFn: logoutRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["logoutUser"] })
+      queryClient.clear()
+      router.push("/login")
     },
   })
 }

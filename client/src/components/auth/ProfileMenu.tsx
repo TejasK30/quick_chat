@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from "react";
+"use client"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,25 +7,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import UserAvatar from "../common/UserAvatar";
-import dynamic from "next/dynamic";
-const LogoutModal = dynamic(() => import("../auth/LogoutModal"));
+} from "@/components/ui/dropdown-menu"
+import dynamic from "next/dynamic"
+import UserAvatar from "../common/UserAvatar"
+const LogoutModal = dynamic(() => import("../auth/LogoutModal"))
 
-export default function ProfileMenu({
-  image,
-  name,
-}: {
-  image?: string;
-  name: string;
-}) {
-  const [logoutOpen, setLogoutOpen] = useState(false);
+export default function ProfileMenu({ name }: { name: string }) {
+  const [logoutOpen, setLogoutOpen] = useState(false)
   return (
     <>
       {logoutOpen && <LogoutModal open={logoutOpen} setOpen={setLogoutOpen} />}
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <UserAvatar name={name} image={image} />
+          <UserAvatar name={name} />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -37,5 +31,5 @@ export default function ProfileMenu({
         </DropdownMenuContent>
       </DropdownMenu>
     </>
-  );
+  )
 }

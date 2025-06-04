@@ -1,4 +1,5 @@
 "use client"
+
 import React, { Dispatch, SetStateAction } from "react"
 import {
   AlertDialog,
@@ -10,7 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useRouter } from "next/navigation"
 import { useLogout } from "@/hooks/useLogout"
 
 export default function LogoutModal({
@@ -20,13 +20,12 @@ export default function LogoutModal({
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const router = useRouter()
   const logoutMutation = useLogout()
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
-        router.push("/login")
+        setOpen(false)
       },
     })
   }
