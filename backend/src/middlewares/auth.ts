@@ -6,6 +6,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
+        id: string
         name: string
         email: string
       }
@@ -30,6 +31,7 @@ export const verify = async (
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
       select: {
+        id: true,
         name: true,
         email: true,
       },
@@ -39,13 +41,13 @@ export const verify = async (
       return res.status(404).json({ message: "User not found" })
     }
 
-    return res.status(200).json({
-      message: "User verified",
-      user: {
-        name: user.name,
-        email: user.email,
-      },
-    })
+    req.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    }
+
+    next()
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" })
   }
