@@ -3,6 +3,7 @@ import crypto from "crypto"
 import { Request, Response } from "express"
 import { prisma } from "../db/client"
 import { generateToken } from "../utils/generateToken"
+
 export const RegisterUser = async (
   req: Request,
   res: Response
@@ -48,6 +49,12 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     }
 
     const token = await generateToken(user.id)
+
+    const ismatch = await bcrypt.compare(password, user.password)
+
+    if (!ismatch) {
+      return res.status(400).json({ message: "password does not match" })
+    }
 
     res.cookie("token", token, {
       secure: process.env.NODE_ENV === "production",
