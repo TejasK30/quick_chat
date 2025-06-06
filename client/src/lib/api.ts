@@ -1,0 +1,7 @@
+const BASE_URL = "http://localhost:5000"
+export const API_URL = BASE_URL + "/api"
+export const LOGIN_URL = API_URL + "/auth/login"
+export const SIGNUP_URL = API_URL + "/auth/register"
+export const CHAT_GROUP = API_URL + "/chat" + "/chat-group"
+export const CHAT_GROUP_USERS = API_URL + "/chat-group-user"
+export const CHATS_URL = API_URL + "/chats"

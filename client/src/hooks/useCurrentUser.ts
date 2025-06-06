@@ -1,9 +1,8 @@
+import { API_URL } from "@/lib/api"
 import { useQuery } from "@tanstack/react-query"
 
-const URL = "http://localhost:5000/api"
-
 export const fetchCurrentUser = async () => {
-  const response = await fetch(`${URL}/auth/verify`, {
+  const response = await fetch(`${API_URL}/auth/verify`, {
     method: "GET",
     credentials: "include",
   })

@@ -1,3 +1,4 @@
+import { SIGNUP_URL } from "@/lib/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 interface registerCredentials {
@@ -10,12 +11,10 @@ interface apiResponse {
   message: string
 }
 
-const url = "http://localhost:5000/api"
-
 const registerRequest = async (
   credentials: registerCredentials
 ): Promise<apiResponse> => {
-  const response = await fetch(`${url}/auth/register`, {
+  const response = await fetch(`${SIGNUP_URL}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
