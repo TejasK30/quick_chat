@@ -4,9 +4,23 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/authRoute"
 import chatGroupRoutes from "./routes/chatgroup"
+import { Server, Socket } from "socket.io"
+import { createServer } from "http"
+import { setupSocket } from "./socket"
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+const server = createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+})
+
+setupSocket(io)
+
+export { io }
 
 app.use(
   cors({
