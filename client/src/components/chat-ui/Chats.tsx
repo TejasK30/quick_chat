@@ -29,7 +29,6 @@ export default function Chats({
   }, [group.id])
   useEffect(() => {
     socket.on("message", (data: MessageType) => {
-      console.log("The message is", data)
       setMessages((prevMessages) => [...prevMessages, data])
       scrollToBottom()
     })
@@ -41,13 +40,20 @@ export default function Chats({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
+    if (!message.trim()) return
+
+    if (!chatUser?.name) {
+      throw new Error("User name is missing")
+    }
+
     const payload: MessageType = {
       id: uuidv4(),
-      message: message,
-      name: chatUser?.name ?? "Unknown",
+      message: message.trim(),
+      name: chatUser.name!,
       created_at: new Date().toISOString(),
       group_id: group.id,
     }
+
     socket.emit("message", payload)
     setMessage("")
     setMessages([...messages, payload])

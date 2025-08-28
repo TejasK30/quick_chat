@@ -17,6 +17,7 @@ import { CHAT_GROUP_USERS } from "@/lib/api"
 
 const addUserToGroup = async (userData: { name: string; group_id: string }) => {
   const response = await fetch(`${CHAT_GROUP_USERS}/add`, {
+    credentials: "include",
     method: "POST",
     headers: {
       "Content-Type": "application/json",

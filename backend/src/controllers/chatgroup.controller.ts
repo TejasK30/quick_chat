@@ -50,16 +50,12 @@ class chatgroupController {
     try {
       const { id } = req.params
 
-      console.log(id)
-
       if (id) {
         const group = await prisma.chatgroup.findUnique({
           where: {
             id: id,
           },
         })
-
-        console.log(group)
         return res.json({ data: group })
       }
       return res.status(404).json({ message: "No group found!" })

@@ -15,10 +15,12 @@ import { setupSocket } from "./socket"
 const app = express()
 const PORT = process.env.PORT || 5000
 
+const origins = ["http://localhost:3000", "http://localhost:3001"]
+
 const server = createServer(app)
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: origins,
     credentials: true,
   })
 )
@@ -33,7 +35,7 @@ consumeMessages(process.env.KAFKA_TOPIC || "chats").catch((err) =>
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: origins,
     credentials: true,
   },
   adapter: createAdapter(redis),

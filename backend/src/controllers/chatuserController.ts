@@ -27,7 +27,6 @@ class chatuserController {
     try {
       const body = req.body
 
-      console.log("Received add user data: ", body)
       const user = await prisma.groupUsers.create({
         data: body,
       })

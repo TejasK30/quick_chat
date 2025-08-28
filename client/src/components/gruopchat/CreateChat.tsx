@@ -46,8 +46,6 @@ const CreateChat = () => {
       })
       const data = await response.json()
 
-      console.log(data)
-
       if (!response.ok) {
         toast.error(data.message || "Something went wrong")
         setLoading(false)
@@ -59,9 +57,10 @@ const CreateChat = () => {
       reset()
       await queryClient.invalidateQueries({ queryKey: ["chat-groups"] })
       setLoading(false)
-    } catch (error: any) {
+    } catch (error) {
       setLoading(false)
-      toast.error(error.message || "Something went wrong. Please try again!")
+      toast.error("Something went wrong. Please try again!")
+      console.log(error)
     }
   }
 

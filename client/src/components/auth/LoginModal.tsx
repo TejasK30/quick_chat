@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
 
 export default function LoginModal() {
   const [email, setEmail] = useState("")
@@ -80,9 +81,7 @@ export default function LoginModal() {
             />
           </div>
 
-          {apiMessage && (
-            <p className="text-sm text-red-600">{apiMessage}</p>
-          )}
+          {apiMessage && <p className="text-sm text-red-600">{apiMessage}</p>}
 
           <Button
             type="submit"
@@ -92,6 +91,13 @@ export default function LoginModal() {
             {loginMutation.isPending ? "Logging in…" : "Login"}
           </Button>
         </form>
+        <span>
+          Dont&apos;t have an account ?
+          <Link className="text-blue-700" href="/register">
+            Register
+          </Link>{" "}
+          here
+        </span>
       </DialogContent>
     </Dialog>
   )

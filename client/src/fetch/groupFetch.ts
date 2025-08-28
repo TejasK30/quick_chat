@@ -17,6 +17,7 @@ export const getChatGroup = async (groupId: string) => {
   try {
     const response = await fetch(`${CHAT_GROUP}/${groupId}`, {
       method: "GET",
+      credentials: "include",
     })
 
     if (!response.ok) {
