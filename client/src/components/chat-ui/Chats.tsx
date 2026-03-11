@@ -2,6 +2,7 @@ import { getsocket } from "@/lib/socket.config"
 import { ChatGroupType, GroupChatUserType, MessageType } from "@/types"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
+import { Button } from "../ui/button"
 
 export default function Chats({
   group,
@@ -67,18 +68,19 @@ export default function Chats({
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`max-w-sm rounded-lg p-2 ${
+              className={`w-fit rounded-lg p-2 flex flex-col ${
                 message.name === chatUser?.name
                   ? "bg-gradient-to-r from-blue-400 to-blue-600  text-white self-end"
                   : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
               }`}
             >
+              <p className="text-sm font-bold">{message.name}</p>
               {message.message}
             </div>
           ))}
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="mt-2 flex items-center">
+      <form onSubmit={handleSubmit} className="mt-2 gap-2 flex items-center">
         <input
           type="text"
           placeholder="Type a message..."
@@ -86,6 +88,9 @@ export default function Chats({
           className="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
           onChange={(e) => setMessage(e.target.value)}
         />
+        <Button className="px-4 py-2 bg-violet-700 h-full" type="submit">
+          Send
+        </Button>
       </form>
     </div>
   )

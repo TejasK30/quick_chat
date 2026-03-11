@@ -1,6 +1,4 @@
 "use client"
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   Dialog,
   DialogContent,
@@ -8,12 +6,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { useParams } from "next/navigation"
-import { toast } from "sonner"
-import { ChatGroupType } from "@/types"
+import { getChatGroup } from "@/fetch/groupFetch"
+import useCurrentUser from "@/hooks/useCurrentUser"
 import { CHAT_GROUP_USERS } from "@/lib/api"
+import { ChatGroupType } from "@/types"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { toast } from "sonner"
+import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 
 const addUserToGroup = async (userData: { name: string; group_id: string }) => {
   const response = await fetch(`${CHAT_GROUP_USERS}/add`, {
@@ -24,9 +26,11 @@ const addUserToGroup = async (userData: { name: string; group_id: string }) => {
     },
     body: JSON.stringify(userData),
   })
+
   if (!response.ok) {
     throw new Error("Network response was not ok")
   }
+
   return response.json()
 }
 
@@ -40,19 +44,33 @@ export default function ChatUserDialog({
   group: ChatGroupType
 }) {
   const params = useParams()
+  const groupId = params["id"] as string
   const queryClient = useQueryClient()
+
   const [state, setState] = useState({
     name: "",
     passcode: "",
   })
 
+  const { data: user } = useCurrentUser()
+
+  const { data } = useQuery({
+    queryKey: ["get-group", groupId],
+    queryFn: () => getChatGroup(groupId),
+  })
+
   const addUserMutation = useMutation({
     mutationFn: addUserToGroup,
     onSuccess: (result) => {
-      localStorage.setItem(params["id"] as string, JSON.stringify(result?.data))
-      // Invalidate queries to update the UI
-      queryClient.invalidateQueries({ queryKey: ["chatUsers", params["id"]] })
-      queryClient.invalidateQueries({ queryKey: ["chatGroup", params["id"]] })
+      localStorage.setItem(groupId, JSON.stringify(result?.data))
+
+      queryClient.invalidateQueries({
+        queryKey: ["chatUsers", groupId],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["chatGroup", groupId],
+      })
     },
     onError: () => {
       toast.error("Something went wrong. Please try again!")
@@ -60,33 +78,43 @@ export default function ChatUserDialog({
   })
 
   useEffect(() => {
-    const data = localStorage.getItem(params["id"] as string)
+    const data = localStorage.getItem(groupId)
+
     if (data) {
       const jsonData = JSON.parse(data)
+
       if (jsonData?.name && jsonData?.group_id) {
         setOpen(false)
       }
     }
-  }, [params, setOpen])
+  }, [groupId, setOpen])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    const localData = localStorage.getItem(params["id"] as string)
+
+    if (group.passcode !== state.passcode) {
+      toast.error("Please enter correct passcode!")
+      return
+    }
+
+    const localData = localStorage.getItem(groupId)
+
     if (!localData) {
       addUserMutation.mutate({
         name: state.name,
-        group_id: params["id"] as string,
+        group_id: groupId,
       })
     }
-    if (group.passcode !== state.passcode) {
-      toast.error("Please enter correct passcode!")
-    } else {
-      setOpen(false)
-    }
+
+    setOpen(false)
   }
 
+  const isUser: boolean = data?.name === user?.name
+
+  if (isUser) return null
+
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Name and Passcode</DialogTitle>
@@ -94,6 +122,7 @@ export default function ChatUserDialog({
             Add your name and passcode to join in room
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit}>
           <div className="mt-2">
             <Input
@@ -102,6 +131,7 @@ export default function ChatUserDialog({
               onChange={(e) => setState({ ...state, name: e.target.value })}
             />
           </div>
+
           <div className="mt-2">
             <Input
               placeholder="Enter your passcode"
@@ -109,6 +139,7 @@ export default function ChatUserDialog({
               onChange={(e) => setState({ ...state, passcode: e.target.value })}
             />
           </div>
+
           <div className="mt-2">
             <Button className="w-full">Submit</Button>
           </div>

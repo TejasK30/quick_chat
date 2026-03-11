@@ -7,11 +7,19 @@ class chatgroupController {
       const { title, passcode } = req.body
       const user = req.user?.id
 
-      await prisma.chatgroup.create({
+      const chatGroup = await prisma.chatgroup.create({
         data: {
           title: title,
           passcode: passcode,
           user_id: user as string,
+        },
+      })
+
+      // add user to group
+      await prisma.groupUsers.create({
+        data: {
+          name: req.user?.name!,
+          group_id: chatGroup.id,
         },
       })
 

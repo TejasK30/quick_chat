@@ -28,7 +28,7 @@ const LoginPage = () => {
         onError: (error: Error) => {
           setApiMessage(error.message)
         },
-      }
+      },
     )
   }
   return (
@@ -49,7 +49,7 @@ const LoginPage = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <Label htmlFor="password" className="font-bold">
-            Your email address
+            Your Password
           </Label>
           <Input
             name="password"

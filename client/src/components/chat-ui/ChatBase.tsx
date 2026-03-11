@@ -6,6 +6,8 @@ import ChatNav from "./Chatnav"
 import ChatSidebar from "./ChatSideBar"
 import ChatUserDialog from "./ChatUserDialog"
 import Chats from "./Chats"
+import useCurrentUser from "@/hooks/useCurrentUser"
+import { useRouter } from "next/navigation"
 
 const ChatBase = ({
   group,
@@ -18,6 +20,16 @@ const ChatBase = ({
 }) => {
   const [open, setOpen] = useState(true)
   const [chatUser, setChatUser] = useState<GroupChatUserType>()
+
+  const router = useRouter()
+
+  const { data: user, error: autherror } = useCurrentUser()
+
+  useEffect(() => {
+    if (autherror && !user) {
+      router.push("/login")
+    }
+  }, [user, router, autherror])
 
   useEffect(() => {
     const data = localStorage.getItem(group.id)
