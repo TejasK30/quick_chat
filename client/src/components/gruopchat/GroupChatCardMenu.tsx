@@ -1,27 +1,29 @@
-"use client"
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChatGroupType } from "@/types"
-import { Copy, Edit, EllipsisVertical, Trash2 } from "lucide-react"
-import dynamic from "next/dynamic"
-import { Suspense, useState } from "react"
-import { toast } from "sonner"
-import { Button } from "../ui/button"
-import EditGroupChat from "./EditChatGroup"
-const DeleteChatGroup = dynamic(() => import("./DeleteChatGroup"))
+} from "@/components/ui/dropdown-menu";
+import { ChatGroupType } from "@/types";
+import { Copy, Edit, EllipsisVertical, Trash2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Suspense, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import EditGroupChat from "./EditChatGroup";
+const DeleteChatGroup = dynamic(() => import("./DeleteChatGroup"));
 
 export function GroupChatCardMenu({ group }: { group: ChatGroupType }) {
-  const [deleteDialog, setDeleteDialog] = useState(false)
-  const [editDialog, setEditDialog] = useState(false)
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [editDialog, setEditDialog] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText(`http://localhost:3000/chats/${group.id}`)
-    toast.success("Link copied successfully!")
-  }
+    navigator.clipboard?.writeText(
+      `${process.env.NEXT_PUBLIC_URL}/chats/${group.id}`,
+    );
+    toast.success("Link copied successfully!");
+  };
 
   return (
     <>
@@ -81,5 +83,5 @@ export function GroupChatCardMenu({ group }: { group: ChatGroupType }) {
         </DropdownMenuContent>
       </DropdownMenu>
     </>
-  )
+  );
 }
