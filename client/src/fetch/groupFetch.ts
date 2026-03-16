@@ -6,6 +6,10 @@ export const getChatGroups = async () => {
     credentials: "include",
   })
 
+  if (response.status === 403) {
+    throw new Error("Unauthorized")
+  }
+
   if (!response.ok) {
     throw new Error("Failed to fetch chat groups")
   }
@@ -19,6 +23,10 @@ export const getChatGroup = async (groupId: string) => {
       method: "GET",
       credentials: "include",
     })
+
+    if (response.status === 403) {
+      throw new Error("Unauthorized")
+    }
 
     if (!response.ok) {
       throw new Error(`Failed to fetch chat groups`)

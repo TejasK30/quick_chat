@@ -74,7 +74,7 @@ export default function EditGroupChat({
         toast.success(data.message)
         await queryClient.invalidateQueries({ queryKey: ["chat-groups"] })
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
