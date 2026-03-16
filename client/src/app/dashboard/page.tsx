@@ -55,7 +55,9 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
         {groups.length > 0 ? (
-          groups.map((item: ChatGroupType) => <GroupChatCard group={item} key={item.id} />)
+          groups.map((item: ChatGroupType) => (
+            <GroupChatCard group={item} key={item.id} />
+          ))
         ) : (
           <p className="col-span-full text-center text-gray-500">
             No groups found.

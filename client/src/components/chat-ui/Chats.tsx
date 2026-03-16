@@ -8,10 +8,12 @@ export default function Chats({
   group,
   oldMessages,
   chatUser,
+  setOpen,
 }: {
   group: ChatGroupType
   oldMessages: Array<MessageType> | []
   chatUser?: GroupChatUserType
+  setOpen: (open: boolean) => void
 }) {
   const [message, setMessage] = useState("")
   const [messages, setMessages] = useState<Array<MessageType>>(oldMessages)
@@ -23,11 +25,10 @@ export default function Chats({
 
   const socket = useMemo(() => {
     const socket = getsocket()
-    socket.auth = {
-      room: group.id,
-    }
+    socket.auth = { room: group.id }
     return socket.connect()
   }, [group.id])
+
   useEffect(() => {
     socket.on("message", (data: MessageType) => {
       setMessages((prevMessages) => [...prevMessages, data])
@@ -38,19 +39,21 @@ export default function Chats({
       socket.close()
     }
   }, [socket])
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
 
     if (!message.trim()) return
 
     if (!chatUser?.name) {
-      throw new Error("User name is missing")
+      setOpen(true)
+      return
     }
 
     const payload: MessageType = {
       id: uuidv4(),
       message: message.trim(),
-      name: chatUser.name!,
+      name: chatUser.name,
       created_at: new Date().toISOString(),
       group_id: group.id,
     }
@@ -58,29 +61,33 @@ export default function Chats({
     socket.emit("message", payload)
     setMessage("")
     setMessages([...messages, payload])
+    scrollToBottom()
   }
 
   return (
-    <div className="flex flex-col h-[94vh]  p-4">
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+    <div className="flex flex-col flex-1 overflow-hidden p-4">
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse min-h-0">
         <div ref={messagesEndRef} />
         <div className="flex flex-col gap-2">
-          {messages.map((message) => (
+          {messages.map((msg) => (
             <div
-              key={message.id}
+              key={msg.id}
               className={`w-fit rounded-lg p-2 flex flex-col ${
-                message.name === chatUser?.name
-                  ? "bg-gradient-to-r from-blue-400 to-blue-600  text-white self-end"
+                msg.name === chatUser?.name
+                  ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white self-end"
                   : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
               }`}
             >
-              <p className="text-sm font-bold">{message.name}</p>
-              {message.message}
+              <p className="text-sm font-bold">{msg.name}</p>
+              {msg.message}
             </div>
           ))}
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="mt-2 gap-2 flex items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-2 gap-2 flex items-center shrink-0 border-t pt-2"
+      >
         <input
           type="text"
           placeholder="Type a message..."

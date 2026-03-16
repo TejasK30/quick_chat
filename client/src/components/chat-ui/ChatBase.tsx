@@ -1,7 +1,7 @@
 "use client"
 
 import { ChatGroupType, GroupChatUserType, MessageType } from "@/types"
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import ChatNav from "./Chatnav"
 import ChatSidebar from "./ChatSideBar"
 import ChatUserDialog from "./ChatUserDialog"
@@ -18,42 +18,41 @@ const ChatBase = ({
   users: Array<GroupChatUserType> | []
   oldMessages: Array<MessageType> | []
 }) => {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(true) // ✅ always open dialog first
   const [chatUser, setChatUser] = useState<GroupChatUserType>()
 
   const router = useRouter()
-
-  const { data: user, error: autherror } = useCurrentUser()
+  const { data: currentUser, error: autherror } = useCurrentUser()
 
   useEffect(() => {
-    if (autherror && !user) {
+    if (autherror && !currentUser) {
       router.push("/login")
     }
-  }, [user, router, autherror])
-
-  useEffect(() => {
-    const data = localStorage.getItem(group.id)
-    if (data) {
-      const pData = JSON.parse(data)
-      setChatUser(pData)
-    }
-  }, [group.id])
+  }, [currentUser, router, autherror])
 
   return (
-    <>
-      <div className="flex">
-        <ChatSidebar users={users} />
-        <div className="w-full md:w-4/5 bg-gradient-x-0 items-center">
-          {open ? (
-            <ChatUserDialog group={group} open={open} setOpen={setOpen} />
-          ) : (
-            <ChatNav chatGroup={group} users={users} />
-          )}
+    <div className="flex h-screen overflow-hidden">
+      <ChatSidebar users={users} />
+      <div className="flex flex-col w-full md:w-4/5 h-screen overflow-hidden">
+        {open ? (
+          <ChatUserDialog
+            group={group}
+            open={open}
+            setOpen={setOpen}
+            setChatUser={setChatUser}
+          />
+        ) : (
+          <ChatNav chatGroup={group} users={users} chatUser={chatUser} />
+        )}
 
-          <Chats group={group} oldMessages={oldMessages} chatUser={chatUser} />
-        </div>
+        <Chats
+          group={group}
+          oldMessages={oldMessages}
+          chatUser={chatUser}
+          setOpen={setOpen}
+        />
       </div>
-    </>
+    </div>
   )
 }
 

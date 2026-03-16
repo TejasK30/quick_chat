@@ -6,13 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { getChatGroup } from "@/fetch/groupFetch"
-import useCurrentUser from "@/hooks/useCurrentUser"
 import { CHAT_GROUP_USERS } from "@/lib/api"
-import { ChatGroupType } from "@/types"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { ChatGroupType, GroupChatUserType } from "@/types"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
+import React, { Dispatch, SetStateAction, useState } from "react"
 import { toast } from "sonner"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -38,10 +36,12 @@ export default function ChatUserDialog({
   open,
   setOpen,
   group,
+  setChatUser,
 }: {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
   group: ChatGroupType
+  setChatUser: (user: GroupChatUserType) => void
 }) {
   const params = useParams()
   const groupId = params["id"] as string
@@ -52,66 +52,38 @@ export default function ChatUserDialog({
     passcode: "",
   })
 
-  const { data: user } = useCurrentUser()
-
-  const { data } = useQuery({
-    queryKey: ["get-group", groupId],
-    queryFn: () => getChatGroup(groupId),
-  })
-
   const addUserMutation = useMutation({
     mutationFn: addUserToGroup,
     onSuccess: (result) => {
-      localStorage.setItem(groupId, JSON.stringify(result?.data))
+      setChatUser(result?.data)
+      setOpen(false)
 
-      queryClient.invalidateQueries({
-        queryKey: ["chatUsers", groupId],
-      })
-
-      queryClient.invalidateQueries({
-        queryKey: ["chatGroup", groupId],
-      })
+      queryClient.invalidateQueries({ queryKey: ["chatUsers", groupId] })
+      queryClient.invalidateQueries({ queryKey: ["chatGroup", groupId] })
     },
     onError: () => {
       toast.error("Something went wrong. Please try again!")
     },
   })
 
-  useEffect(() => {
-    const data = localStorage.getItem(groupId)
-
-    if (data) {
-      const jsonData = JSON.parse(data)
-
-      if (jsonData?.name && jsonData?.group_id) {
-        setOpen(false)
-      }
-    }
-  }, [groupId, setOpen])
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+
+    if (!state.name.trim()) {
+      toast.error("Please enter your name!")
+      return
+    }
 
     if (group.passcode !== state.passcode) {
       toast.error("Please enter correct passcode!")
       return
     }
 
-    const localData = localStorage.getItem(groupId)
-
-    if (!localData) {
-      addUserMutation.mutate({
-        name: state.name,
-        group_id: groupId,
-      })
-    }
-
-    setOpen(false)
+    addUserMutation.mutate({
+      name: state.name,
+      group_id: groupId,
+    })
   }
-
-  const isUser: boolean = data?.name === user?.name
-
-  if (isUser) return null
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -141,7 +113,9 @@ export default function ChatUserDialog({
           </div>
 
           <div className="mt-2">
-            <Button className="w-full">Submit</Button>
+            <Button className="w-full" disabled={addUserMutation.isPending}>
+              {addUserMutation.isPending ? "Joining..." : "Submit"}
+            </Button>
           </div>
         </form>
       </DialogContent>
